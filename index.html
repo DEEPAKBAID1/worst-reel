@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>Worst Reel Standoff · Sangini Arise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f5f5f7; --surface:#ffffff; --fill:rgba(118,118,128,.12); --text:#1d1d1f; --sub:#6e6e73;
+  --sep:rgba(60,60,67,.14); --blue:#0071e3; --red:#ff3b30; --green:#34c759;
+  --nav:rgba(245,245,247,.72); --seg-on:#ffffff;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.06);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Helvetica Neue",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#000000; --surface:#1c1c1e; --fill:rgba(118,118,128,.24); --text:#f5f5f7; --sub:#98989d;
+    --sep:rgba(84,84,88,.55); --blue:#0a84ff; --red:#ff453a; --green:#30d158;
+    --nav:rgba(22,22,23,.72); --seg-on:#636366; --shadow:none;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{
+  min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);
+  font-size:17px;line-height:1.47;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--blue);text-decoration:none}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px;border-radius:10px}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top,0px);
+  background:var(--nav);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--sep)}
+.nav-in{max-width:680px;margin:0 auto;height:48px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;font-size:14px}
+.nav .brand{font-weight:600;letter-spacing:-.01em}
+.nav .who{color:var(--sub);display:flex;gap:14px;align-items:center}
+.nav .who b{color:var(--text);font-weight:500}
+.nav .who button{color:var(--blue)}
+
+.demo{max-width:680px;margin:14px auto 0;padding:0 20px}
+.demo div{background:var(--fill);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--sub);text-align:center}
+.demo b{color:var(--text);font-weight:600}
+
+.wrap{max-width:680px;margin:0 auto;padding:0 20px 110px}
+
+/* Hero */
+.hero{text-align:center;padding:60px 0 40px}
+.eyebrow{font-size:17px;font-weight:600;color:var(--sub)}
+h1{font-size:clamp(46px,12vw,84px);font-weight:700;letter-spacing:-.048em;line-height:1.02;margin-top:6px}
+.lede{font-size:clamp(19px,4.6vw,23px);color:var(--sub);margin:14px auto 0;max-width:30ch;line-height:1.35;letter-spacing:-.02em}
+.timer{display:flex;justify-content:center;gap:clamp(20px,7vw,44px);margin-top:38px}
+.timer .v{font-size:clamp(44px,12vw,64px);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.04em;line-height:1}
+.timer .l{font-size:13px;color:var(--sub);margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:7px 14px;border-radius:999px;background:var(--fill);font-size:14px;font-weight:500}
+.pill i{width:8px;height:8px;border-radius:50%;display:block}
+
+/* Card */
+.card{background:var(--surface);border-radius:24px;box-shadow:var(--shadow);padding:30px 26px}
+.card h2{font-size:28px;font-weight:700;letter-spacing:-.035em;line-height:1.15}
+.card .sub{color:var(--sub);margin-top:6px}
+.card .icon{width:44px;height:44px;margin-bottom:14px;color:var(--green)}
+
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--fill);border-radius:10px;padding:2px;gap:2px}
+.seg button{height:32px;border-radius:8px;font-size:14px;font-weight:500;transition:background .2s}
+.seg button.on{background:var(--seg-on);box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
+.card .seg{margin-bottom:26px}
+
+.group{background:var(--bg);border-radius:14px;margin-top:22px;overflow:hidden}
+.group label{display:flex;align-items:center;gap:12px;padding:0 16px;min-height:52px;position:relative}
+.group label + label::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.group span{width:62px;flex:none}
+.group input{flex:1;min-width:0;height:52px;border:0;background:transparent;color:var(--text);font:inherit;outline:none;color-scheme:light dark}
+.group input::placeholder{color:var(--sub);opacity:.7}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:50px;padding:0 26px;border-radius:999px;font-size:17px;font-weight:500;transition:transform .12s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.gray{background:var(--fill)}
+.btn.danger{background:var(--fill);color:var(--red)}
+.btn.block{width:100%;margin-top:22px}
+.btn.small{height:34px;padding:0 16px;font-size:15px}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btns{display:flex;gap:10px;margin-top:22px}
+.btns .btn{flex:1}
+
+.linkchip{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:14px 16px;margin-top:22px;color:var(--text)}
+.linkchip svg{width:28px;height:28px;flex:none;color:var(--blue)}
+.linkchip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+
+/* Sections & lists */
+.sect{margin-top:56px}
+.sect h3{font-size:24px;font-weight:700;letter-spacing:-.03em;padding:0 4px}
+.sect .note{color:var(--sub);font-size:15px;padding:0 4px;margin-top:4px;max-width:56ch}
+.list{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);margin-top:14px;overflow:hidden}
+.item{display:flex;align-items:center;gap:14px;padding:12px 16px;min-height:64px;position:relative;width:100%;text-align:left}
+.item + .item::before{content:"";position:absolute;top:0;left:66px;right:0;border-top:.5px solid var(--sep)}
+.num{width:36px;height:36px;flex:none;border-radius:10px;background:var(--fill);display:grid;place-items:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.num.gold{background:linear-gradient(135deg,#ffd60a,#ff9f0a);color:#1d1d1f}
+.item .main{flex:1;min-width:0}
+.item .t{font-weight:600;letter-spacing:-.02em}
+.item .s{font-size:14px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .sc{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
+.item .chev{width:14px;height:14px;color:var(--sub);flex:none}
+.item .x{color:var(--red);font-size:15px}
+.empty{padding:26px 16px;color:var(--sub);text-align:center;font-size:15px}
+.waiting{font-size:14px;color:var(--sub);padding:12px 4px 0}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* Screening */
+.ov{position:fixed;inset:0;z-index:20;background:#000;color:#f5f5f7;display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);
+  opacity:0;pointer-events:none;transform:scale(1.02);transition:opacity .3s,transform .3s}
+.ov.show{opacity:1;pointer-events:auto;transform:none}
+.ov-top{display:flex;align-items:center;justify-content:space-between;max-width:520px;width:100%;margin:0 auto}
+.round{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center}
+.round svg{width:16px;height:16px}
+.ov-title{text-align:center}
+.ov-title b{display:block;font-size:22px;font-weight:700;letter-spacing:-.03em}
+.ov-title small{font-size:13px;color:#98989d}
+.ov-media{flex:1;min-height:0;width:100%;max-width:400px;margin:14px auto 0;border-radius:22px;overflow:hidden;background:#1c1c1e;display:flex}
+.ov-media iframe{width:100%;height:100%;border:0}
+.fallback{margin:auto;text-align:center;padding:28px;color:#98989d;font-size:15px}
+.fallback .btn{margin-top:16px;background:#f5f5f7;color:#000}
+.rate{max-width:520px;width:100%;margin:16px auto 0}
+.rate p{font-size:13px;color:#98989d;text-align:center;margin-bottom:10px}
+.chips{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.chip{aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.12);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;transition:background .15s,transform .15s}
+.chip.on{background:#f5f5f7;color:#000;transform:scale(1.08)}
+.ov-nav{display:flex;align-items:center;justify-content:space-between;max-width:520px;width:100%;margin:14px auto 0}
+.ov-nav a{color:#98989d;font-size:14px}
+.ov-nav .round{width:48px;height:48px}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);transform:translate(-50%,16px);
+  background:rgba(29,29,31,.92);color:#f5f5f7;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  padding:12px 20px;border-radius:999px;font-size:15px;font-weight:500;opacity:0;transition:.25s;z-index:30;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.foot{text-align:center;color:var(--sub);font-size:13px;margin-top:64px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="nav-in" id="nav"></div></nav>
+<div class="demo" id="demo"></div>
+<main class="wrap" id="app"></main>
+
+<div class="ov" id="ov" aria-hidden="true">
+  <div class="ov-top">
+    <button class="round" onclick="closeOv()" aria-label="Close">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+    </button>
+    <div class="ov-title"><b id="ovTitle"></b><small id="ovOf"></small></div>
+    <span style="width:40px"></span>
+  </div>
+  <div class="ov-media" id="ovMedia"></div>
+  <div class="rate" id="ovRate"></div>
+  <div class="ov-nav">
+    <button class="round" onclick="stepOv(-1)" aria-label="Previous reel">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+    </button>
+    <a id="ovLink" target="_blank" rel="noopener">Open in app</a>
+    <button class="round" onclick="stepOv(1)" aria-label="Next reel">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+    </button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   PASTE YOUR FIREBASE CONFIG HERE.
+   Until you do, the page runs in preview mode with sample
+   data held in memory (nothing is saved or shared).
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyD42x3sglP8ep8llqOOPeIaWbzfqCsus-4",
+  authDomain: "arise-reel-standoff.firebaseapp.com",
+  projectId: "arise-reel-standoff",
+  storageBucket: "arise-reel-standoff.firebasestorage.app",
+  messagingSenderId: "953422499573",
+  appId: "1:953422499573:web:006a3dfe0d8059acbeffbc"
+};
+
+const ADMIN_USER = "DEEPAK";
+const ADMIN_PIN  = "6827";
+
+/* Submissions close at 10:00 PM IST, 20 Sep 2026 (host can still change it) */
+const DEFAULT_DEADLINE = new Date("2026-09-20T22:00:00+05:30").getTime();
+
+/* =========================================================
+   Data layer: Firebase when configured, in-memory otherwise
+   ========================================================= */
+const LIVE = !firebaseConfig.apiKey.startsWith("PASTE");
+
+function firebaseStore(){
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  return {
+    onSettings: cb => db.doc("meta/settings").onSnapshot(d => cb(d.data() || {})),
+    onSubs:     cb => db.collection("subs").onSnapshot(q => cb(q.docs.map(d => ({id:d.id, ...d.data()})))),
+    onUsers:    cb => db.collection("users").onSnapshot(q => cb(q.docs.map(d => d.id))),
+    getUser:    async u => { const d = await db.doc("users/"+u).get(); return d.exists ? d.data() : null; },
+    createUser: (u,pin) => db.doc("users/"+u).set({pin, created:Date.now()}),
+    saveSub:    (u,data) => db.doc("subs/"+u).set(data, {merge:true}),
+    deleteSub:  u => db.doc("subs/"+u).delete(),
+    setSettings:o => db.doc("meta/settings").set(o, {merge:true})
+  };
+}
+
+function demoStore(){
+  const now = Date.now();
+  const d = {
+    settings:{phase:"open", deadline: DEFAULT_DEADLINE},
+    users:{AARAV:{pin:"1111"}, KAVYA:{pin:"2222"}, ROHAN:{pin:"3333"}, ISHA:{pin:"4444"}, MEHUL:{pin:"5555"}},
+    subs:{
+      AARAV:{link:"https://www.instagram.com/reel/sample-one/", user:"AARAV", updatedAt:now-52*6e4, key:.21},
+      KAVYA:{link:"https://www.instagram.com/reel/sample-two/", user:"KAVYA", updatedAt:now-31*6e4, key:.67},
+      ROHAN:{link:"https://youtube.com/shorts/sample-three", user:"ROHAN", updatedAt:now-12*6e4, key:.44}
+    }
+  };
+  const L = {settings:[], subs:[], users:[]};
+  const emit = () => setTimeout(() => {
+    L.settings.forEach(f => f({...d.settings}));
+    L.subs.forEach(f => f(Object.entries(d.subs).map(([id,v]) => ({id, ...v}))));
+    L.users.forEach(f => f(Object.keys(d.users)));
+  }, 0);
+  return {
+    onSettings: cb => { L.settings.push(cb); emit(); },
+    onSubs:     cb => { L.subs.push(cb); emit(); },
+    onUsers:    cb => { L.users.push(cb); emit(); },
+    getUser:    async u => d.users[u] || null,
+    createUser: async (u,pin) => { d.users[u] = {pin}; emit(); },
+    saveSub:    async (u,x) => { d.subs[u] = {...(d.subs[u]||{}), ...x}; emit(); },
+    deleteSub:  async u => { delete d.subs[u]; emit(); },
+    setSettings:async o => { Object.assign(d.settings, o); emit(); }
+  };
+}
+
+/* =========================================================
+   State
+   ========================================================= */
+const S = {
+  me:null, admin:false,
+  settings:{phase:"open", deadline:DEFAULT_DEADLINE}, subs:[], users:[],
+  mode:"login", aName:"", aPin:"", draft:"", editing:false,
+  showNames:false, confirmDel:null, ovId:null, lastHtml:"", lastEditable:null
+};
+let store;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2200); }
+const ls = {
+  get(){ try{ return JSON.parse(localStorage.getItem("wrs_session")||"null"); }catch(e){ return null; } },
+  set(v){ try{ v ? localStorage.setItem("wrs_session",JSON.stringify(v)) : localStorage.removeItem("wrs_session"); }catch(e){} }
+};
+
+const ICON = {
+  check:`<svg class="icon" viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="currentColor"/><path d="M13 22.5l6 6 12-13" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  lock:`<svg class="icon" viewBox="0 0 44 44" style="color:var(--sub)"><circle cx="22" cy="22" r="22" fill="currentColor" opacity=".18"/><rect x="14" y="20" width="16" height="12" rx="3" fill="currentColor"/><path d="M17.5 20v-3a4.5 4.5 0 019 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>`,
+  play:`<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="currentColor" opacity=".14"/><path d="M11.5 9.5l7 4.5-7 4.5z" fill="currentColor"/></svg>`,
+  chev:`<svg class="chev" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5L9.5 7 5 11.5"/></svg>`
+};
+
+/* =========================================================
+   Boot
+   ========================================================= */
+if(LIVE && typeof firebase==="undefined"){
+  document.getElementById("app").innerHTML='<section class="hero"><div class="eyebrow">Sangini Arise presents</div><h1>Worst Reel<br>Standoff</h1><p class="lede">Couldn\'t connect. Check your internet and refresh the page.</p></section>';
+  throw new Error("Firebase SDK failed to load");
+}
+store = LIVE ? firebaseStore() : demoStore();
+const saved = ls.get(); if(saved){ S.me=saved.me; S.admin=saved.admin; }
+store.onSettings(x => { S.settings = Object.assign({phase:"open", deadline:DEFAULT_DEADLINE}, x); render(); });
+store.onSubs(x => { S.subs = x; render(); if(S.ovId) paintRate(); });
+store.onUsers(x => { S.users = x; render(); });
+setInterval(tick, 1000);
+if(!LIVE) $("demo").innerHTML = `<div>Preview mode, nothing is saved. Host: <b>DEEPAK / 6827</b>. Friend: <b>AARAV / 1111</b>, or join with a new name.</div>`;
+render();
+
+/* =========================================================
+   Helpers
+   ========================================================= */
+const canEdit = () => S.settings.phase==="open" && (!S.settings.deadline || Date.now() < S.settings.deadline);
+const ordered = () => [...S.subs].sort((a,b) => (a.key||0)-(b.key||0));
+const num = i => String(i+1).padStart(2,"0");
+const mine = () => S.subs.find(s => s.id===S.me);
+const clockTime = ms => new Date(ms).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+function toLocalInput(ms){ if(!ms) return ""; return new Date(ms - new Date(ms).getTimezoneOffset()*6e4).toISOString().slice(0,16); }
+
+function clockHTML(){
+  const {phase, deadline} = S.settings;
+  if(phase!=="open" || !deadline) return "";
+  const ms = Math.max(0, deadline-Date.now());
+  const h=Math.floor(ms/36e5), m=Math.floor(ms%36e5/6e4), s=Math.floor(ms%6e4/1e3);
+  const u = (v,l) => `<div><div class="v">${String(v).padStart(2,"0")}</div><div class="l">${l}</div></div>`;
+  return `<div class="timer">${u(h,"hours")}${u(m,"minutes")}${u(s,"seconds")}</div>`;
+}
+function tick(){
+  const c=$("clock"); if(c) c.innerHTML = clockHTML();
+  const e=canEdit(); if(e!==S.lastEditable){ S.lastEditable=e; render(); }
+}
+function embedFor(link){
+  let m = link.match(/instagram\.com\/(?:[^\/]+\/)?(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
+  if(m) return `https://www.instagram.com/reel/${m[1]}/embed/`;
+  m = link.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+  if(m) return `https://www.youtube.com/embed/${m[1]}`;
+  return null;
+}
+
+/* =========================================================
+   Actions
+   ========================================================= */
+async function doAuth(){
+  const u = (S.aName||"").trim().toUpperCase().replace(/[\/.#$\[\]]/g,"").replace(/\s+/g," ");
+  const p = (S.aPin||"").trim();
+  if(!u) return toast("Enter your name");
+  if(!/^\d{4}$/.test(p)) return toast("PIN must be 4 digits");
+  if(u===ADMIN_USER) return p===ADMIN_PIN ? login(u,true) : toast("Wrong PIN");
+  try{
+    const acc = await store.getUser(u);
+    if(S.mode==="signup"){
+      if(acc) return toast("That name is taken. Log in instead.");
+      await store.createUser(u,p); login(u,false); toast("Account created");
+    }else{
+      if(!acc) return toast("No account with that name");
+      if(acc.pin!==p) return toast("Wrong PIN");
+      login(u,false);
+    }
+  }catch(e){ toast("Couldn't connect. Try again."); }
+}
+function login(u,a){ S.me=u; S.admin=a; S.aPin=""; ls.set({me:u,admin:a}); render(); }
+function logout(){ S.me=null; S.admin=false; S.editing=false; S.draft=""; ls.set(null); render(); }
+function setMode(m){ S.mode=m; render(); }
+
+async function submitReel(){
+  const link=(S.draft||"").trim();
+  if(!/^https?:\/\/\S+$/i.test(link)) return toast("Paste a full link starting with https://");
+  if(!canEdit()) return toast("Submissions are closed");
+  const had = !!mine();
+  const data = {link, user:S.me, updatedAt:Date.now()};
+  if(!had) data.key = Math.random();
+  try{ await store.saveSub(S.me,data); S.editing=false; S.draft=""; toast(had?"Reel changed":"Reel submitted"); }
+  catch(e){ toast("Couldn't save. Try again."); }
+}
+async function deleteReel(id){
+  if(!S.admin && !canEdit()) return toast("Submissions are closed");
+  if(S.confirmDel!==id){
+    S.confirmDel=id; render();
+    clearTimeout(S._cd); S._cd=setTimeout(()=>{ S.confirmDel=null; render(); },3000);
+    return;
+  }
+  S.confirmDel=null; S.editing=false;
+  await store.deleteSub(id); toast("Reel deleted");
+}
+function startEdit(){ S.editing=true; S.draft=mine()?.link||""; render(); }
+function cancelEdit(){ S.editing=false; S.draft=""; render(); }
+
+const setPhase = p => store.setSettings({phase:p});
+function saveDeadline(){
+  const v=$("dl").value; if(!v) return toast("Pick a date and time");
+  store.setSettings({deadline:new Date(v).getTime(), phase:"open"}).then(()=>toast("Deadline set"));
+}
+function clearDeadline(){ store.setSettings({deadline:null}).then(()=>toast("Deadline removed")); }
+function setScore(id,n){
+  const s=S.subs.find(x=>x.id===id); if(s) s.score=n; paintRate();
+  store.saveSub(id,{score:n}).catch(()=>toast("Score didn't save"));
+}
+function toggleNames(){ S.showNames=!S.showNames; render(); }
+
+/* =========================================================
+   Screening room
+   ========================================================= */
+function openOv(id){ if(!id) return; S.ovId=id; paintOv(); const o=$("ov"); o.classList.add("show"); o.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
+function closeOv(){ S.ovId=null; const o=$("ov"); o.classList.remove("show"); o.setAttribute("aria-hidden","true"); $("ovMedia").innerHTML=""; document.body.style.overflow=""; S.lastHtml=""; render(); }
+function stepOv(d){
+  const L=ordered(), i=L.findIndex(s=>s.id===S.ovId), n=L[i+d];
+  if(n){ S.ovId=n.id; paintOv(); } else toast(d>0 ? "That was the last reel" : "This is the first reel");
+}
+function paintOv(){
+  const L=ordered(), i=L.findIndex(s=>s.id===S.ovId), s=L[i]; if(!s) return closeOv();
+  $("ovTitle").textContent = "Reel " + num(i);
+  $("ovOf").textContent = `${i+1} of ${L.length}`;
+  $("ovLink").href = s.link;
+  const e = LIVE ? embedFor(s.link) : null;
+  $("ovMedia").innerHTML = e
+    ? `<iframe src="${esc(e)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+    : `<div class="fallback">${LIVE ? "This link can't play inside the page." : "In preview mode the reel opens in a new tab."}<br><a class="btn" href="${esc(s.link)}" target="_blank" rel="noopener">Open reel</a></div>`;
+  paintRate();
+}
+function paintRate(){
+  const box=$("ovRate");
+  if(!S.admin || !S.ovId){ box.innerHTML=""; return; }
+  const sc = S.subs.find(x=>x.id===S.ovId)?.score;
+  box.innerHTML = `<p>Rate it. 10 is the worst.</p><div class="chips">${
+    Array.from({length:10},(_,k)=>`<button class="chip ${sc===k+1?"on":""}" onclick="setScore('${esc(S.ovId)}',${k+1})" aria-label="Score ${k+1}">${k+1}</button>`).join("")
+  }</div>`;
+}
+
+/* =========================================================
+   Views
+   ========================================================= */
+function navHTML(){
+  return `<span class="brand">Worst Reel Standoff</span>` + (S.me
+    ? `<span class="who"><span><b>${esc(S.me)}</b>${S.admin?" · Host":""}</span><button onclick="logout()">Log out</button></span>`
+    : `<span class="who">Sangini Arise</span>`);
+}
+
+function heroHTML(){
+  const st = {
+    open:["Submissions open","var(--green)"], closed:["Submissions closed","#ff9f0a"],
+    review:["Screening now","var(--blue)"], reveal:["Results are in","#bf5af2"]
+  }[S.settings.phase] || ["Submissions open","var(--green)"];
+  const n = S.subs.length;
+  return `
+  <section class="hero">
+    <div class="eyebrow">Sangini Arise presents</div>
+    <h1>Worst Reel<br>Standoff</h1>
+    <p class="lede">Find the worst reel on the internet. Tonight, we judge.</p>
+    <div id="clock">${clockHTML()}</div>
+    <div class="pill"><i style="background:${st[1]}"></i>${st[0]} · ${n} reel${n===1?"":"s"} in</div>
+  </section>`;
+}
+
+function authHTML(){
+  const L = S.mode==="login";
+  return `
+  <div class="card">
+    <div class="seg">
+      <button class="${L?"on":""}" onclick="setMode('login')">Log in</button>
+      <button class="${L?"":"on"}" onclick="setMode('signup')">Create account</button>
+    </div>
+    <h2>${L ? "Welcome back." : "Join the standoff."}</h2>
+    <p class="sub">${L ? "Log in to submit or change your reel." : "Pick a name and a 4-digit PIN. Your reel stays anonymous."}</p>
+    <div class="group">
+      <label><span>Name</span><input id="aName" autocomplete="off" autocapitalize="characters" placeholder="Your name" value="${esc(S.aName)}" oninput="S.aName=this.value"></label>
+      <label><span>PIN</span><input id="aPin" type="password" inputmode="numeric" maxlength="4" placeholder="4 digits" value="${esc(S.aPin)}" oninput="S.aPin=this.value" onkeydown="if(event.key==='Enter')doAuth()"></label>
+    </div>
+    <button class="btn primary block" onclick="doAuth()">${L ? "Log in" : "Create account"}</button>
+  </div>`;
+}
+
+function entryHTML(){
+  const m=mine(), ok=canEdit();
+  const del = S.confirmDel===S.me ? "Tap to confirm" : "Delete";
+  const chip = m ? `<a class="linkchip" href="${esc(m.link)}" target="_blank" rel="noopener">${ICON.play}<span>${esc(m.link)}</span></a>` : "";
+
+  if(m && !S.editing && ok) return `
+    <div class="card">${ICON.check}
+      <h2>You're in.</h2>
+      <p class="sub">Submitted at ${clockTime(m.updatedAt)}. You can change it until the deadline.</p>
+      ${chip}
+      <div class="btns"><button class="btn gray" onclick="startEdit()">Change</button><button class="btn danger" onclick="deleteReel('${esc(S.me)}')">${del}</button></div>
+    </div>`;
+
+  if(ok) return `
+    <div class="card">
+      <h2>${m ? "Change your reel." : "Submit your reel."}</h2>
+      <p class="sub">Paste an Instagram or YouTube link. Nobody else will know it's yours.</p>
+      <div class="group"><label><span>Link</span><input id="lk" type="url" inputmode="url" autocomplete="off" placeholder="instagram.com/reel/…" value="${esc(S.draft)}" oninput="S.draft=this.value" onkeydown="if(event.key==='Enter')submitReel()"></label></div>
+      ${S.editing
+        ? `<div class="btns"><button class="btn gray" onclick="cancelEdit()">Cancel</button><button class="btn primary" onclick="submitReel()">Save</button></div>`
+        : `<button class="btn primary block" onclick="submitReel()">Submit</button>`}
+    </div>`;
+
+  if(m) return `
+    <div class="card">${ICON.lock}
+      <h2>Your reel is locked in.</h2>
+      <p class="sub">Submissions are closed. See you at the screening.</p>${chip}
+    </div>`;
+
+  return `
+    <div class="card">${ICON.lock}
+      <h2>Submissions are closed.</h2>
+      <p class="sub">You didn't enter this round. You can still watch the screening.</p>
+    </div>`;
+}
+
+function reelListHTML(scored){
+  const L=ordered();
+  if(!L.length) return `<div class="list"><div class="empty">No reels were submitted.</div></div>`;
+  return `<div class="list">${L.map((s,i)=>`
+    <button class="item" onclick="openOv('${esc(s.id)}')">
+      <div class="num">${num(i)}</div>
+      <div class="main">
+        <div class="t">${S.admin && S.showNames ? esc(s.id) : "Reel "+num(i)}</div>
+        <div class="s">${scored ? (s.score ? "Rated" : "Not rated yet") : "Tap to watch"}</div>
+      </div>
+      ${scored ? `<div class="sc">${s.score ?? "–"}</div>` : ""}${ICON.chev}
+    </button>`).join("")}</div>`;
+}
+
+function standingsHTML(names){
+  const L=ordered().map((s,i)=>({...s,i})).sort((a,b)=>(b.score||0)-(a.score||0));
+  if(!L.length) return "";
+  return `<div class="list">${L.map((s,r)=>`
+    <div class="item">
+      <div class="num ${r===0 && s.score ? "gold" : ""}">${r+1}</div>
+      <div class="main"><div class="t">${names ? esc(s.id) : "Reel "+num(s.i)}</div><div class="s">${names ? "Reel "+num(s.i) : "Name hidden"}</div></div>
+      <div class="sc">${s.score ?? "–"}</div>
+    </div>`).join("")}</div>`;
+}
+
+function userHTML(){
+  const ph=S.settings.phase;
+  let h = entryHTML();
+  if(ph==="open" || ph==="closed") h += `
+    <section class="sect"><h3>How tonight works</h3>
+      <p class="note">Every reel plays here one by one with no names attached. Each gets a score out of 10, and the highest total is crowned the worst.</p></section>`;
+  if(ph==="review") h += `
+    <section class="sect"><h3>Now screening</h3><p class="note">Watch along. Names stay hidden until the results.</p>${reelListHTML(false)}</section>`;
+  if(ph==="reveal") h += `
+    <section class="sect"><h3>Results</h3><p class="note">The worst reel of the night, and who posted it.</p>${standingsHTML(true)}</section>
+    <section class="sect"><h3>Watch again</h3>${reelListHTML(false)}</section>`;
+  return h;
+}
+
+function adminHTML(){
+  const ph=S.settings.phase, L=ordered();
+  const waiting = S.users.filter(u=>!S.subs.some(s=>s.id===u));
+  const names = S.showNames || ph==="reveal";
+  const stages = [["open","Open"],["closed","Closed"],["review","Screening"],["reveal","Results"]];
+  return `
+  <div class="card">
+    <h2>Host controls</h2>
+    <p class="sub">Open lets friends submit. Closed locks entries. Screening shows reels to everyone. Results reveals names and scores.</p>
+    <div class="seg" style="margin:22px 0 0">${stages.map(([k,t])=>`<button class="${ph===k?"on":""}" onclick="setPhase('${k}')">${t}</button>`).join("")}</div>
+    <div class="group"><label><span>Deadline</span><input id="dl" type="datetime-local" value="${toLocalInput(S.settings.deadline)}"></label></div>
+    <div class="btns">
+      ${S.settings.deadline ? `<button class="btn gray" onclick="clearDeadline()">Remove</button>` : ""}
+      <button class="btn primary" onclick="saveDeadline()">Set deadline</button>
+    </div>
+  </div>
+
+  <section class="sect">
+    <h3>Entries</h3>
+    <p class="note">${S.users.length} ${S.users.length===1?"person has":"people have"} joined. Only you can see who posted what.</p>
+    <div class="list">${L.length ? L.map((s,i)=>`
+      <div class="item">
+        <div class="num">${num(i)}</div>
+        <div class="main"><div class="t">${esc(s.id)}</div><div class="s"><a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a></div></div>
+        <button class="x" onclick="deleteReel('${esc(s.id)}')">${S.confirmDel===s.id ? "Confirm" : "Delete"}</button>
+      </div>`).join("") : `<div class="empty">No reels yet. Share the link with the group.</div>`}</div>
+    ${waiting.length ? `<p class="waiting">Waiting on ${waiting.map(esc).join(", ")}</p>` : ""}
+  </section>
+
+  <section class="sect">
+    <h3>Screening room</h3>
+    <p class="note">Play each reel full screen, rate it, then tap next.</p>
+    <div class="controls">
+      <button class="btn primary small" ${L.length?"":"disabled"} onclick="openOv('${esc(L[0]?.id||"")}')">Start screening</button>
+      <button class="btn gray small" onclick="toggleNames()">${S.showNames ? "Hide names" : "Show names"}</button>
+    </div>
+    ${reelListHTML(true)}
+  </section>
+
+  <section class="sect">
+    <h3>Standings</h3>
+    <p class="note">${names ? "Ranked by score." : "Names are hidden while you screen."}</p>
+    ${standingsHTML(names)}
+  </section>`;
+}
+
+function render(){
+  $("nav").innerHTML = navHTML();
+  const html = heroHTML() + (!S.me ? authHTML() : S.admin ? adminHTML() : userHTML()) + `<p class="foot">Sangini Arise</p>`;
+  if(html===S.lastHtml) return;
+  const f=document.activeElement, fid=f&&f.id, pos=f&&f.selectionStart;
+  $("app").innerHTML=html; S.lastHtml=html;
+  if(fid){ const el=$(fid); if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(e){} } }
+}
+</script>
+</body>
+</html>
